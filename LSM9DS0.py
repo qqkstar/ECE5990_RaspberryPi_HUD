@@ -1,6 +1,7 @@
 MAG_ADDRESS	=	0x1D			
 ACC_ADDRESS	=	0x1D			
 GYR_ADDRESS =   0x6B
+TMP_ADDRESS =   0x1D
 
 #LSM9DS0 Gyro Registers	
 WHO_AM_I_G	=	0x0F			
