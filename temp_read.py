@@ -19,7 +19,7 @@ def readTMP():
   tmp_h = bus.read_byte_data(TMP_ADDRESS,  OUT_TEMP_H_XM)
   tmp_combined = ((tmp_h & 0b00001111) << 8) | tmp_l
   tmp_combined = tmp_combined if tmp_combined < 2048 else tmp_combined - 4096
-  return tmp_combined + 23     # add number as calibration factor, temp sensor may be faulty
+  return tmp_combined + 0     # add number as calibration factor, temp sensor may be faulty
 
 #initialize temperature sensor
 writeTMP(CTRL_REG5_XM, 0b11110000)  #TMP enable, M data rate = 50Hz
@@ -37,13 +37,20 @@ for iteration in xrange(1, len(tmp_calibration)):
   kalman_filter.input_latest_noisy_measurement(tmp_calibration[iteration])
 
 #Obtain kalman-filtered temperature in Celsius, rounded to integer form
-def getTMP():
+'''def getTMP():
   tmp_readings = []
-  while len(tmp_readings) < 100:
+  while len(tmp_readings) < 50:
     tmp_readings.append(readTMP())
   iteration_count = len(tmp_readings)
   for iteration in xrange(1, iteration_count):
     kalman_filter.input_latest_noisy_measurement(tmp_readings[iteration])
   temperature = kalman_filter.get_latest_estimated_measurement()
-  return int(round(temperature)) 
+  return int(round(temperature))''' 
+
+#Obtain kalman-filtered temperature in Celsius, rounded to integer form
+def getTMP():
+  tmp_reading = readTMP()
+  kalman_filter.input_latest_noisy_measurement(tmp_reading)
+  temperature = kalman_filter.get_latest_estimated_measurement()
+  return int(round(temperature))
 

@@ -7,8 +7,9 @@
 import pygame
 import sys
 import os
+import time
 from rpiIMU import *
-from rpiIMU import *
+from temp_read import *
 
 os.environ['SDL_VIDEODRIVER'] = 'fbcon'   #set up os environment to display to TFT
 os.environ['SDL_FBDEV'] = '/dev/fb1'
@@ -24,7 +25,9 @@ size = width, height = 320, 240
 screen = pygame.display.set_mode(size)
 
 compass_background = pygame.image.load('compass_background.png')
+compass_background = pygame.transform.scale(compass_background, (200,200))
 compass_needle = pygame.image.load('compass_needle.png')
+compass_needle = pygame.transform.scale(compass_needle, (220,220))
 cb_rect = compass_background.get_rect()
 cn_rect = compass_background.get_rect()
 
@@ -41,15 +44,23 @@ q_text_pos.centerx = screen.get_rect().centerx + 100
 q_text_pos.centery = screen.get_rect().centery + 100
 
 while 1:
+  temperature = getTMP()
+  #Handle value error due to incorrect math domain
+  try:
+    heading = calcHeading()
+  except ValueError:
+    pass
   for event in pygame.event.get():
     if event.type == pygame.MOUSEBUTTONDOWN:
       p = pygame.mouse.get_pos()
       #touch screen button press detection logic, for quit button
       if not start and p[0]>240 and p[0]<285 and p[1]>200 and p[1]<220: 
         sys.exit()
-  print "temperature is " `
+  print "temperature is " + str(temperature)
+  print "heading is " + str(heading)
   screen.fill(black)
   screen.blit(quit_text, q_text_pos)
   screen.blit(compass_background, cb_rect)
   screen.blit(compass_needle, cn_rect)
   pygame.display.flip()
+  time.sleep(0.05)
