@@ -1,9 +1,6 @@
 #!/usr/bin/python
 #
-#	This program  reads the angles from the acceleromter, gyrscope
-#	and mangnetometeron a BerryIMU connected to a Raspberry Pi.
-#
-#	http://ozzmaker.com/
+#    Edited by XiaoXing Zhao on May 16, 2016
 #
 #    Copyright (C) 2016  Mark Williams
 #    This library is free software; you can redistribute it and/or
@@ -18,7 +15,6 @@
 #    License along with this library; if not, write to the Free
 #    Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
 #    MA 02111-1307, USA
-
 
 import smbus
 import time
@@ -48,8 +44,6 @@ YP_10 = 0.0
 YP_11 = 0.0
 KFangleX = 0.0
 KFangleY = 0.0
-
-
 
 def kalmanFilterY ( accAngle, gyroRate, DT):
 	y=0.0
@@ -141,15 +135,12 @@ def writeGRY(register,value):
         bus.write_byte_data(GYR_ADDRESS, register, value)
         return -1
 
-
-
 def readACCx():
         acc_l = bus.read_byte_data(ACC_ADDRESS, OUT_X_L_A)
         acc_h = bus.read_byte_data(ACC_ADDRESS, OUT_X_H_A)
 	acc_combined = (acc_l | acc_h <<8)
 
 	return acc_combined  if acc_combined < 32768 else acc_combined - 65536
-
 
 def readACCy():
         acc_l = bus.read_byte_data(ACC_ADDRESS, OUT_Y_L_A)
@@ -158,14 +149,12 @@ def readACCy():
 
 	return acc_combined  if acc_combined < 32768 else acc_combined - 65536
 
-
 def readACCz():
         acc_l = bus.read_byte_data(ACC_ADDRESS, OUT_Z_L_A)
         acc_h = bus.read_byte_data(ACC_ADDRESS, OUT_Z_H_A)
 	acc_combined = (acc_l | acc_h <<8)
 
 	return acc_combined  if acc_combined < 32768 else acc_combined - 65536
-
 
 def readMAGx():
         mag_l = bus.read_byte_data(MAG_ADDRESS, OUT_X_L_M)
@@ -174,14 +163,12 @@ def readMAGx():
 
         return mag_combined  if mag_combined < 32768 else mag_combined - 65536
 
-
 def readMAGy():
         mag_l = bus.read_byte_data(MAG_ADDRESS, OUT_Y_L_M)
         mag_h = bus.read_byte_data(MAG_ADDRESS, OUT_Y_H_M)
         mag_combined = (mag_l | mag_h <<8)
 
         return mag_combined  if mag_combined < 32768 else mag_combined - 65536
-
 
 def readMAGz():
         mag_l = bus.read_byte_data(MAG_ADDRESS, OUT_Z_L_M)
@@ -190,8 +177,6 @@ def readMAGz():
 
         return mag_combined  if mag_combined < 32768 else mag_combined - 65536
 
-
-
 def readGYRx():
         gyr_l = bus.read_byte_data(GYR_ADDRESS, OUT_X_L_G)
         gyr_h = bus.read_byte_data(GYR_ADDRESS, OUT_X_H_G)
@@ -199,7 +184,6 @@ def readGYRx():
 
         return gyr_combined  if gyr_combined < 32768 else gyr_combined - 65536
   
-
 def readGYRy():
         gyr_l = bus.read_byte_data(GYR_ADDRESS, OUT_Y_L_G)
         gyr_h = bus.read_byte_data(GYR_ADDRESS, OUT_Y_H_G)
@@ -213,9 +197,6 @@ def readGYRz():
         gyr_combined = (gyr_l | gyr_h <<8)
 
         return gyr_combined  if gyr_combined < 32768 else gyr_combined - 65536
-
-
-
 	
 #initialise the accelerometer
 writeACC(CTRL_REG1_XM, 0b01100111) #z,y,x axis enabled, continuos update,  100Hz data rate
@@ -238,9 +219,49 @@ CFangleY = 0.0
 kalmanX = 0.0
 kalmanY = 0.0
 
+def calcHeading():
+  MAGx = readMAGx()
+  MAGy = readMAGy()
+  MAGz = readMAGz()
+  ACCx = readACCx()
+  ACCy = readACCy()
+  ACCz = readACCz()
+  
+  ############################MAG direction ##########################
+  #If IMU is upside down, then use this line.  It isnt needed if the
+  # IMU is the correct way up
+  #MAGy = -MAGy
+  #
+  ############################ END ##################################
+
+  #Normalize accelerometer raw values.
+  ###################Calculate pitch and roll#########################
+  #Us these two lines when the IMU is up the right way. Skull logo is facing down
+  accXnorm = ACCx/math.sqrt(ACCx * ACCx + ACCy * ACCy + ACCz * ACCz)
+  accYnorm = ACCy/math.sqrt(ACCx * ACCx + ACCy * ACCy + ACCz * ACCz)
+  pitch = math.asin(accXnorm)
+  roll = -math.asin(accYnorm/math.cos(pitch))
+  #Us these four lines when the IMU is upside down. Skull logo is facing up
+  #accXnorm = -accXnorm               #flip Xnorm as the IMU is upside down
+  #accYnorm = -accYnorm               #flip Ynorm as the IMU is upside down
+  #pitch = math.asin(accXnorm)
+  #roll = math.asin(accYnorm/math.cos(pitch))
+  ############################ END ##################################
+
+  #Calculate the new tilt compensated values
+  magXcomp = MAGx*math.cos(pitch)+MAGz*math.sin(pitch)
+  magYcomp = MAGx*math.sin(roll)*math.sin(pitch)+MAGy*math.cos(roll)-MAGz*math.sin(roll)*math.cos(pitch)
+
+  #Calculate tilt compensated heading
+  tiltCompensatedHeading = 180 * math.atan2(magYcomp,magXcomp)/M_PI
+
+  if tiltCompensatedHeading < 0:
+    tiltCompensatedHeading += 360
+  return tiltCompensatedHeading
+
 a = datetime.datetime.now()
 
-while True:
+'''while True:
 	
 	
 	#Read the accelerometer,gyroscope and magnetometer values
@@ -381,4 +402,4 @@ while True:
 	#slow program down a bit, makes the output more readable
 	time.sleep(0.03)
 
-
+'''
