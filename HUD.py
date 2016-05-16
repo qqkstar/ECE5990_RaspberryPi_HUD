@@ -55,7 +55,13 @@ d_text_pos = degree_text.get_rect()
 d_text_pos.centerx = 295
 d_text_pos.centery = 25
 
-display_compass = 0
+temp_text = font2.render("temp",1,(255,250,255))
+t_text_pos = temp_text.get_rect()
+t_text_pos.centerx = 265
+t_text_pos.centery = 176
+
+display_compass = 0     #toggle displaying compass
+display_F = 0           #toggle displaying fahrenheit
 
 def rot_center(image, angle):
     """rotate an image while keeping its center and size"""
@@ -81,6 +87,8 @@ while 1:
         sys.exit()
       elif p[0]>50 and p[0]<90 and p[1]>200 and p[1]<230:
         display_compass ^= 1
+      elif p[0]>213 and p[0]<300 and p[1]>140 and p[1]<200 :
+        display_F ^= 1
 
   print "temperature is " + str(temperature)
   print "heading is " + str(heading)
@@ -99,5 +107,12 @@ while 1:
     pygame.draw.line(screen, white, (20, 140), (300, 140))  
     pygame.draw.line(screen, white, (width/3, 20), (width/3, 200))  
     pygame.draw.line(screen, white, (2*width/3, 20), (2*width/3, 200))  
+    if display_F:
+      temperature = int(temperature * 9.0/5.0 + 32)
+      temp_text = font2.render(str(int(temperature))+'\xb0F', 1, white)  
+      screen.blit(temp_text, t_text_pos)
+    else:
+      temp_text = font2.render(str(int(temperature))+'\xb0C', 1, white)   
+      screen.blit(temp_text, t_text_pos) 
   pygame.display.flip()
   time.sleep(0.1)
