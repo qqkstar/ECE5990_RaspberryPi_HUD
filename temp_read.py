@@ -21,11 +21,9 @@ def writeTMP(register, value):
 def readTMP():
   tmp_l = bus.read_byte_data(TMP_ADDRESS,  OUT_TEMP_L_XM)
   tmp_h = bus.read_byte_data(TMP_ADDRESS,  OUT_TEMP_H_XM)
-  print tmp_l
-  print tmp_h
   tmp_combined = ((tmp_h & 0b00001111) << 8) | tmp_l
   tmp_combined = tmp_combined if tmp_combined < 2048 else tmp_combined - 4096
-  return tmp_combined     # add 16 as calibration factor
+  return tmp_combined + 48     # add 48 as calibration factor, temp sensor may be faulty
 
 #initialize temperature sensor
 def initTMP():
