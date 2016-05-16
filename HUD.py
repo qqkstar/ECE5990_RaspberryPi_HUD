@@ -17,9 +17,10 @@ os.environ['SDL_MOUSEDEV'] = '/dev/input/touchscreen' #set up touchscreen as mou
 os.environ['SDL_MOUSEDRV'] = 'TSLIB'
 
 black = 0, 0, 0
+white = 255, 255, 255
 
 pygame.init()
-#pygame.mouse.set_visible(False)
+pygame.mouse.set_visible(False)
 
 size = width, height = 320, 240
 screen = pygame.display.set_mode(size)
@@ -27,16 +28,17 @@ screen = pygame.display.set_mode(size)
 compass_background = pygame.image.load('compass_background.png')
 compass_background = pygame.transform.scale(compass_background, (200,200))
 compass_needle = pygame.image.load('compass_needle.png')
-compass_needle = pygame.transform.scale(compass_needle, (190,190))
+compass_needle = pygame.transform.scale(compass_needle, (150,150))
 cb_rect = compass_background.get_rect()
 cn_rect = compass_background.get_rect()
 
-cb_rect.centerx = 160
-cb_rect.centery = 120
-cn_rect.centerx = 160
-cn_rect.centery = 120
+cb_rect.centerx = 165
+cb_rect.centery = 107
+cn_rect.centerx = 193
+cn_rect.centery = 130
 
 font = pygame.font.Font(None, 20)
+font2 = pygame.font.Font(None, 30)
 
 quit_text = font.render("QUIT",1,(255,250,255))   #set up texts as buttons
 q_text_pos = quit_text.get_rect()
@@ -48,33 +50,54 @@ c_text_pos = compass_text.get_rect()
 c_text_pos.centerx = 70
 c_text_pos.centery = 220
 
+degree_text = font2.render("degrees",1,(255,250,255))
+d_text_pos = degree_text.get_rect()
+d_text_pos.centerx = 295
+d_text_pos.centery = 25
+
 display_compass = 0
+
+def rot_center(image, angle):
+    """rotate an image while keeping its center and size"""
+    orig_rect = image.get_rect()
+    rot_image = pygame.transform.rotate(image, angle)
+    rot_rect = orig_rect.copy()
+    rot_rect.center = rot_image.get_rect().center
+    rot_image = rot_image.subsurface(rot_rect).copy()
+    return rot_image
 
 while 1:
   temperature = getTMP()
   #Handle value error due to incorrect math domain
   try:
-    heading = calcHeading()
+    heading = int(calcHeading())
   except ValueError:
     pass
   for event in pygame.event.get():
     if event.type == pygame.MOUSEBUTTONDOWN:
       p = pygame.mouse.get_pos()
-      print p
       #touch screen button press detection logic, for quit button
       if p[0]>240 and p[0]<285 and p[1]>200 and p[1]<220: 
         sys.exit()
       elif p[0]>50 and p[0]<90 and p[1]>200 and p[1]<230:
         display_compass ^= 1
 
-#  print "temperature is " + str(temperature)
-#  print "heading is " + str(heading)
+  print "temperature is " + str(temperature)
+  print "heading is " + str(heading)
 
   screen.fill(black)
   screen.blit(quit_text, q_text_pos)
   screen.blit(compass_text, c_text_pos)
   if display_compass:
+    degree_text = font2.render(str(int(heading))+'\xb0', 1,(84,179,247))
+    screen.blit(degree_text, d_text_pos)
     screen.blit(compass_background, cb_rect)
-    screen.blit(compass_needle, cn_rect)
+    new_compass_needle = rot_center(compass_needle, heading+90)  #added 90 as offset
+    screen.blit(new_compass_needle, cn_rect)
+  else:
+    pygame.draw.line(screen, white, (20, 70), (300, 70))  
+    pygame.draw.line(screen, white, (20, 140), (300, 140))  
+    pygame.draw.line(screen, white, (width/3, 20), (width/3, 200))  
+    pygame.draw.line(screen, white, (2*width/3, 20), (2*width/3, 200))  
   pygame.display.flip()
-  time.sleep(0.05)
+  time.sleep(0.1)
