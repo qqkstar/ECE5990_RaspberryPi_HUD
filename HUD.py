@@ -19,7 +19,7 @@ os.environ['SDL_MOUSEDRV'] = 'TSLIB'
 black = 0, 0, 0
 
 pygame.init()
-pygame.mouse.set_visible(False)
+#pygame.mouse.set_visible(False)
 
 size = width, height = 320, 240
 screen = pygame.display.set_mode(size)
@@ -27,7 +27,7 @@ screen = pygame.display.set_mode(size)
 compass_background = pygame.image.load('compass_background.png')
 compass_background = pygame.transform.scale(compass_background, (200,200))
 compass_needle = pygame.image.load('compass_needle.png')
-compass_needle = pygame.transform.scale(compass_needle, (220,220))
+compass_needle = pygame.transform.scale(compass_needle, (190,190))
 cb_rect = compass_background.get_rect()
 cn_rect = compass_background.get_rect()
 
@@ -43,6 +43,13 @@ q_text_pos = quit_text.get_rect()
 q_text_pos.centerx = screen.get_rect().centerx + 100
 q_text_pos.centery = screen.get_rect().centery + 100
 
+compass_text = font.render("COMPASS",1,(255,250,255))
+c_text_pos = compass_text.get_rect()
+c_text_pos.centerx = 70
+c_text_pos.centery = 220
+
+display_compass = 0
+
 while 1:
   temperature = getTMP()
   #Handle value error due to incorrect math domain
@@ -53,14 +60,21 @@ while 1:
   for event in pygame.event.get():
     if event.type == pygame.MOUSEBUTTONDOWN:
       p = pygame.mouse.get_pos()
+      print p
       #touch screen button press detection logic, for quit button
-      if not start and p[0]>240 and p[0]<285 and p[1]>200 and p[1]<220: 
+      if p[0]>240 and p[0]<285 and p[1]>200 and p[1]<220: 
         sys.exit()
-  print "temperature is " + str(temperature)
-  print "heading is " + str(heading)
+      elif p[0]>50 and p[0]<90 and p[1]>200 and p[1]<230:
+        display_compass ^= 1
+
+#  print "temperature is " + str(temperature)
+#  print "heading is " + str(heading)
+
   screen.fill(black)
   screen.blit(quit_text, q_text_pos)
-  screen.blit(compass_background, cb_rect)
-  screen.blit(compass_needle, cn_rect)
+  screen.blit(compass_text, c_text_pos)
+  if display_compass:
+    screen.blit(compass_background, cb_rect)
+    screen.blit(compass_needle, cn_rect)
   pygame.display.flip()
   time.sleep(0.05)
