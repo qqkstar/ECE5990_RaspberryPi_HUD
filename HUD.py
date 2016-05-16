@@ -39,6 +39,7 @@ cn_rect.centery = 130
 
 font = pygame.font.Font(None, 20)
 font2 = pygame.font.Font(None, 30)
+font3 = pygame.font.Font(None, 27)
 
 quit_text = font.render("QUIT",1,(255,250,255))   #set up texts as buttons
 q_text_pos = quit_text.get_rect()
@@ -60,6 +61,11 @@ t_text_pos = temp_text.get_rect()
 t_text_pos.centerx = 265
 t_text_pos.centery = 176
 
+accel_text = font3.render("accel",1,(255,250,255))
+a_text_pos = accel_text.get_rect()
+a_text_pos.centerx = 245
+a_text_pos.centery = 105
+
 display_compass = 0     #toggle displaying compass
 display_F = 0           #toggle displaying fahrenheit
 
@@ -72,13 +78,20 @@ def rot_center(image, angle):
     rot_image = rot_image.subsurface(rot_rect).copy()
     return rot_image
 
+time_count = 0
+acceleration = 0
+
 while 1:
+  time_count += 1
   temperature = getTMP()
   #Handle value error due to incorrect math domain
   try:
     heading = int(calcHeading())
+    if time_count % 2: 
+      acceleration = calcAcceleration()
   except ValueError:
     pass
+
   for event in pygame.event.get():
     if event.type == pygame.MOUSEBUTTONDOWN:
       p = pygame.mouse.get_pos()
@@ -92,6 +105,7 @@ while 1:
 
   print "temperature is " + str(temperature)
   print "heading is " + str(heading)
+  print "acceleration is " + str(acceleration)
 
   screen.fill(black)
   screen.blit(quit_text, q_text_pos)
@@ -114,5 +128,12 @@ while 1:
     else:
       temp_text = font2.render(str(int(temperature))+'\xb0C', 1, white)   
       screen.blit(temp_text, t_text_pos) 
+    if acceleration < 1:
+      accel_text = font3.render('~0 m/s\xb2', 1, white)
+      screen.blit(accel_text, a_text_pos)
+    else:
+      accel_text = font3.render('%.2f m/s\xb2'%acceleration, 1, white)
+      screen.blit(accel_text, a_text_pos)
+
   pygame.display.flip()
   time.sleep(0.1)
