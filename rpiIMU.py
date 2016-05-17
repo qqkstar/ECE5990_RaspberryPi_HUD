@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #
-#    Edited by XiaoXing Zhao on May 16, 2016
+#Edited by XiaoXing Zhao on May 16, 2016
 #
 import smbus
 import time
@@ -94,14 +94,6 @@ writeMAG(CTRL_REG7_XM, 0b00000000) #Continuous-conversion mode
 #initialise the gyroscope
 writeGRY(CTRL_REG1_G, 0b00001111) #Normal power mode, all axes enabled
 writeGRY(CTRL_REG4_G, 0b00110000) #Continuos update, 2000 dps full scale
-
-gyroXangle = 0.0
-gyroYangle = 0.0
-gyroZangle = 0.0
-CFangleX = 0.0
-CFangleY = 0.0
-kalmanX = 0.0
-kalmanY = 0.0
 
 #Function used calculate the magnetometer heading in order to be used with the compass
 def calcHeading():
