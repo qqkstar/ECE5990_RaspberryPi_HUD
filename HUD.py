@@ -10,6 +10,7 @@ import os
 import time
 from rpiIMU import *
 from temp_read import *
+#from pynog import *
 
 os.environ['SDL_VIDEODRIVER'] = 'fbcon'   #set up os environment to display to TFT
 os.environ['SDL_FBDEV'] = '/dev/fb1'
@@ -42,6 +43,7 @@ cn_rect.centery = 130
 font = pygame.font.Font(None, 20)
 font2 = pygame.font.Font(None, 30)
 font3 = pygame.font.Font(None, 27)
+font_small = pygame.font.Font(None, 16)
 
 quit_text = font.render("QUIT",1,(255,250,255))   #set up texts as buttons
 q_text_pos = quit_text.get_rect()
@@ -83,6 +85,11 @@ dir_text_pos = velocity_text.get_rect()
 dir_text_pos.centerx = 280
 dir_text_pos.centery = 40
 
+coolant_text = font_small.render("Cooland Temp:",1,white)
+cool_text_pos = coolant_text.get_rect()
+cool_text_pos.centerx = 60
+cool_text_pos.centery = 176 
+
 display_compass = 0     #toggle displaying compass
 display_F = 0           #toggle displaying fahrenheit
 display_kph = 0         #toggle displaying km per hour
@@ -102,8 +109,12 @@ acceleration = 0
 while 1:
   time_count += 1
   temperature = getTMP()
-  #velocity = getVelocity()
+  #speed = getSpeed()
+  #speed_kph = int(speed * 1.609344)
   #rpm = getRMP()
+  speed = 55
+  speed_kph = 69
+  rpm = 879
   #Handle value error due to incorrect math domain
   try:
     heading = int(calcHeading()) - 20
@@ -161,9 +172,9 @@ while 1:
     screen.blit(accel_text, a_text_pos)
 
     if display_kph:
-      velocity_text = font3.render('96 km/h', 1, blue)
+      velocity_text = font3.render(str(speed_kph)+'km/h', 1, blue)
     else:
-      velocity_text = font3.render('69 mph', 1, blue)
+      velocity_text = font3.render(str(speed)+' mph', 1, blue)
     screen.blit(velocity_text, v_text_pos)
     
     if heading < 22.5 or heading > 337.5:
@@ -184,7 +195,7 @@ while 1:
       dir_text = font2.render("NW", 1, red)
     screen.blit(dir_text, dir_text_pos)
 
-    rpm_text = font3.render('69 rpm', 1, blue)
+    rpm_text = font3.render(str(rpm)+' rpm', 1, blue)
     screen.blit(rpm_text, r_text_pos)
 
   pygame.display.flip()
