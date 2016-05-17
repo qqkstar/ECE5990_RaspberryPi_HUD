@@ -10,7 +10,7 @@ import os
 import time
 from rpiIMU import *
 from temp_read import *
-#from pynog import *
+from pynog import *
 
 os.environ['SDL_VIDEODRIVER'] = 'fbcon'   #set up os environment to display to TFT
 os.environ['SDL_FBDEV'] = '/dev/fb1'
@@ -169,28 +169,22 @@ acceleration = 0
 
 while 1:
   time_count += 1
-  temperature = getTMP()
-  #speed = getSpeed()
-  #speed_kph = int(speed * 1.609344)
-  #rpm = getRMP()
-  #coolant = getCoolantTemp()
-  #intake = getIntakeTemp()
-  #load = getLoad()
-  #throttle = getThrottle()
-  speed = 55
-  speed_kph = 69
-  rpm = 879
-  coolant = 170
-  intake = 110
-  load = 44
-  throttle = 78
+
+  speed = getSpeed()
+  rpm = getRPM()
+  acceleration = calcAcceleration()
+  load = getLoad()
+  throttle = getThrottle()
+
   #Handle value error due to incorrect math domain
   try:
     heading = int(calcHeading()) - 20
     if heading < 0:
       heading = 360 + heading
-    if time_count % 2: 
-      acceleration = calcAcceleration()
+    if time_count % 5: 
+      temperature = getTMP()
+      coolant = getCoolantTemp()
+      intake = getIntakeTemp()
   except ValueError:
     pass
 
@@ -241,6 +235,7 @@ while 1:
     screen.blit(accel_text, a_text_pos)
 
     if display_kph:
+      speed_kph = int(speed * 1.609344)
       velocity_text = font3.render(str(speed_kph)+' km/h', 1, blue)
     else:
       velocity_text = font3.render(str(speed)+' mph', 1, blue)
@@ -290,4 +285,3 @@ while 1:
     screen.blit(tvalue_text, tvalue_text_pos)
 
   pygame.display.flip()
-  time.sleep(0.1)

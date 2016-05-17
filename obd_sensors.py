@@ -32,7 +32,7 @@ def maf(code):
 
 def throttle_pos(code):
     code = hex_to_int(code)
-    return code * 100.0 / 255.0
+    return code# * 100.0 / 255.0
 
 def intake_m_pres(code): # in kPa
     code = hex_to_int(code)
@@ -44,11 +44,11 @@ def rpm(code):
 
 def speed(code):
     code = hex_to_int(code)
-    return code / 1.609
+    return code #/ 1.609
 
 def percent_scale(code):
     code = hex_to_int(code)
-    return code * 100.0 / 255.0
+    return code #* 100.0 / 255.0
 
 def timing_advance(code):
     code = hex_to_int(code)

@@ -138,6 +138,7 @@ def calcAcceleration():
   ACCyComp = ACCy * math.cos(thetaY)
 
   acceleration = math.sqrt(ACCxComp**2 + ACCyComp**2) * 9.807
+
   return acceleration
 
 

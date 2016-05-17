@@ -68,12 +68,14 @@ def getRPM():
     return "err"
 
 def getSpeed():
-#  try:
+  try:
     speeds =  port.sensor(13)[1]
+    speeds = int(speeds) 
     speeds = speeds & 0x000000FF
+    speeds /= 1.609
     return int(speeds)
-#  except:
-#    return "Drugs are bad mmmkay?"
+  except:
+    return "Drugs are bad mmmkay?"
 
 def getCoolantTemp():
   try:
@@ -89,12 +91,12 @@ def getIntakeTemp():
 
 def getThrottle():
   try:
-    return port.sensor(17)[1] & 0x00000000FF
+    return int((port.sensor(17)[1] & 0x00000000FF)* 100.0 / 255.0)
   except:
     return "err"
 
 def getLoad():
   try:
-    return port.sensor(4)[1] & 0x00000000FF
+    return int(( port.sensor(4)[1] & 0x00000000FF)*100.0/255.0)
   except:
     return "err"
