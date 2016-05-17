@@ -228,7 +228,7 @@ while 1:
       temp_text = font2.render(str(int(temperature))+'\xb0C', 1, blue)   
     screen.blit(temp_text, t_text_pos) 
 
-    if acceleration < 1:
+    if abs(acceleration) < 1:
       accel_text = font3.render('~0m/s\xb2', 1, blue)
     else:
       accel_text = font3.render('%.2fm/s\xb2'%acceleration, 1, blue)

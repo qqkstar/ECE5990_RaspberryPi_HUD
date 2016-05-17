@@ -139,6 +139,9 @@ def calcAcceleration():
 
   acceleration = math.sqrt(ACCxComp**2 + ACCyComp**2) * 9.807
 
+  if ACCx < 0:
+    acceleration = -acceleration
+
   return acceleration
 
 
